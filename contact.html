@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="fr">
 <head>
@@ -65,6 +64,8 @@
     }
     footer a { color: #cbd5e1; }
   </style>
+  <!-- Script Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 <main>
@@ -90,16 +91,16 @@
         maxlength="5000" required></textarea>
     </div>
 
+    <!-- Widget Turnstile (insérez votre clé de site Turnstile dans data-sitekey) -->
+    <div class="cf-turnstile" data-sitekey="VOTRE_SITE_KEY_TURNSTILE"></div>
+
     <button id="submit-button" type="submit">
       Envoyer le message
     </button>
 
     <p>
-      Les informations transmises servent uniquement à traiter
-      votre demande. Consultez notre
-      <a href="donnees-personnelles.html">
-        politique de données personnelles
-      </a>.
+      Les informations transmises servent uniquement à traiter votre demande.
+      Consultez notre <a href="donnees-personnelles.html">politique de données personnelles</a>.
     </p>
 
     <p id="result" role="status" aria-live="polite"></p>
@@ -111,16 +112,15 @@
       <a href="aide.html">Aide</a>
       <a href="info-site.html">Info site</a>
       <a href="accessibilite.html">Accessibilité : non conforme</a>
-      <a href="index.html">Site de Acapella Brasil</a>
+      <a href="https://www.fmp.fr" target="_blank" rel="noopener noreferrer">Site de FMP</a>
       <a href="donnees-personnelles.html">Cookies / Données personnelles</a>
       <a href="mentions-legales.html">Mentions légales</a>
     </nav>
-    <p>© 2026 Acapella Brasil</p>
   </footer>
 </main>
 
 <script>
-const WORKER_URL = "A_REMPLACER_APRES_CREATION_DU_WORKER";
+const WORKER_URL = "https://adresse-du-worker";
 
 const form = document.getElementById("contact-form");
 const result = document.getElementById("result");
@@ -131,39 +131,6 @@ form.addEventListener("submit", async (event) => {
   result.textContent = "";
   button.disabled = true;
 
+  const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value || "";
+
   const data = {
-    email: form.email.value.trim(),
-    subject: form.subject.value.trim(),
-    message: form.message.value.trim()
-  };
-
-  try {
-    if (WORKER_URL.startsWith("A_REMPLACER")) {
-      throw new Error("Le service de contact n'est pas encore configuré.");
-    }
-
-    const response = await fetch(WORKER_URL + "/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-
-    if (response.status === 201) {
-      result.textContent = "Message envoyé";
-      form.reset();
-    } else {
-      result.textContent =
-        "Erreur : votre message n'a pas pu être envoyé.";
-    }
-  } catch (error) {
-    result.textContent = error.message ===
-      "Le service de contact n'est pas encore configuré."
-      ? error.message
-      : "Erreur de connexion. Veuillez réessayer.";
-  } finally {
-    button.disabled = false;
-  }
-});
-</script>
-</body>
-</html>
